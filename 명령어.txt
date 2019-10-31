@@ -1,0 +1,53 @@
+python -m venv myvenv
+
+pip install djangorestframework
+
+django-admin startproject restframework
+
+python manage.py startapp post
+
+settings.py에 'rest_framework', 'post' 추가
+
+'post'앱에 urls.py 추가
+
+'restframework' 플젝에 'import post.urls' 추가
+
+'models.py'에 Post 클래스 작성
+
+python manage.py makemigrations
+python manage.py migrate
+
+############### post 앱
+
+-- serializer.py --
+from .models import Post
+from rest_framework import serializers
+
+class PostSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Post
+		#fields = '__all__'
+		fields = ['title', 'body']
+
+
+-- urls.py --
+include 추가
+from rest_framework.routers import DefaultRouter
+from .import views
+
+router = DefaultRouter()
+router.register('post', views.PostViewSet)
+
+urlpatturns = [
+	path('', include(router.urls)),
+]
+
+-- views.py --
+from .models import Post
+from .serializer import PostSerializer
+from rest_framework import viewsets
+
+class PostViewSet(viewsets.ModelViewSet):
+	queryset = Post.objects.all()
+	serializer_class = PostSerializer
+
